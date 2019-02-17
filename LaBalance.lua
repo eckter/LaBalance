@@ -15,6 +15,22 @@ frame:SetScript("OnEvent", function(self, event_name, ...)
     return self[event_name](self, event_name, ...)
 end)
 
+function send_message(msg)
+    local chan = la_balance_save["chan"]
+    if chan == nil then
+        print(msg)
+    else
+        id, name = GetChannelName(chan)
+        if id > 0 then
+            SendChatMessage(msg, "CHANNEL", nil, id)
+        else
+            print(addon_name .. " warning: can't send to chan " .. chan)
+            print("return to default and only print localy")
+            la_balance_save["chan"] = nil
+        end
+    end
+end
+
 function command_chan(msg)
     cmd, args = strsplit(" ", msg, 2)
     if cmd == "set" then
@@ -23,6 +39,7 @@ function command_chan(msg)
             return false
         end
         la_balance_save["chan"] = args
+        print(addon_name .. ": set output to chan " .. args)
     elseif cmd == "disable" then
         la_balance_save["chan"] = nil
     else
@@ -51,7 +68,6 @@ end
 
 function frame:ADDON_LOADED(event_name, name)
     if name == addon_name then
-        print(la_balance_save)
         if not la_balance_save then
             la_balance_save = {}
         end
@@ -89,14 +105,14 @@ function frame:COMBAT_LOG_EVENT_UNFILTERED(event,...)
     if eventType:match("^UNIT_DIED$") then
         local type, zero, server_id, instance_id, zone_uid, npc_id, spawn_uid = strsplit("-", dstGUID);
         if type == "Player" then
-            print(dstName .. " est mort. BOUH !")
+            send_message(dstName .. " est mort. BOUH !")
         end
     end
 
     if prefix:match("^SPELL") or prefix == "RANGE" then
         local spellId, spellName, spellSchool = select(12, unpack(event))
         if spellId == 6262 and suffix:match("HEAL$") then
-            print(srcName .. " a utilisé une pierre de soins ! GG !")
+            send_message(srcName .. " a utilisé une pierre de soins ! GG !")
         end
         skip = 3
     end
