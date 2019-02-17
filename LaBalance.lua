@@ -4,14 +4,59 @@ local frame = CreateFrame("Frame", frame_name)
 local in_combat = false
 local raid_name_dict = {}
 local cur_num
+local cmd_name = "/labalance"
 
 frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 frame:RegisterEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT")
 frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+frame:RegisterEvent("ADDON_LOADED")
 
 frame:SetScript("OnEvent", function(self, event_name, ...)
     return self[event_name](self, event_name, ...)
 end)
+
+function command_chan(msg)
+    cmd, args = strsplit(" ", msg, 2)
+    if cmd == "set" then
+        if not args:match("^[a-zA-Z]+$") then
+            print("error: invalid chan name")
+            return false
+        end
+        la_balance_save["chan"] = args
+    elseif cmd == "disable" then
+        la_balance_save["chan"] = nil
+    else
+        return false
+    end
+    return true
+end
+
+function run_command(cmd, args)
+    if cmd == "chan" then
+        return command_chan(args)
+    else
+        return false
+    end
+end
+
+SLASH_LABALANCE1 = cmd_name
+SlashCmdList["LABALANCE"] = function(msg)
+    cmd, args = strsplit(" ", msg, 2)
+    if not run_command(cmd, args) then
+        print(addon_name .. " usage:")
+        print(cmd_name .. " chan set abc: sets the messages to the chan abc")
+        print(cmd_name .. " chan disable: only print the messages localy")
+    end
+end
+
+function frame:ADDON_LOADED(event_name, name)
+    if name == addon_name then
+        print(la_balance_save)
+        if not la_balance_save then
+            la_balance_save = {}
+        end
+    end
+end
 
 function frame:INSTANCE_ENCOUNTER_ENGAGE_UNIT()
     if IsEncounterInProgress() then  -- returns 1 when you're in a fight you can't release from

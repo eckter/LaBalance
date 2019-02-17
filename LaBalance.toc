@@ -2,5 +2,5 @@
 ## Title: LaBalance
 ## Version: 0.0.1
 ## Author: Eckter & Fauxtraque
-## SavedVariables: LaBalanceSave
+## SavedVariables: la_balance_save
 LaBalance.lua
