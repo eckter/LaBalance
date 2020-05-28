@@ -25,8 +25,9 @@ local avoidable = {
 
     -- shadar hm ?
     [306928] = 42, -- souffle ombreux
+    [307945] = 42, -- eruption ombreuse
     [306929] = 42, -- souffle entropique
-    [306930] = 42, -- souffle bouillonant
+    --[306930] = 42, -- souffle bouillonant
     -- irion MM
     [307053] = 42, -- flaque de lave
     [306735] = 42, -- cataclysme
@@ -51,7 +52,9 @@ function trash(player_name)
         "Qu'est-ce que c'est que ce truc sous mes semelles ? Ah, c'est " .. player_name .. " !",
         player_name .. ", heure du décès : " .. date("%H:%M.")
     }
-    send_message(punchlines[random(table.getn(punchlines))])
+    trash_msg = punchlines[random(table.getn(punchlines))]
+    print(trash_msg)
+    send_message(trash_msg)
 end
 
 
@@ -61,6 +64,8 @@ function send_message(msg)
         print(msg)
     else
         id, name = GetChannelName(chan)
+        print(id)
+        print(name)
         if id > 0 then
             SendChatMessage(msg, "CHANNEL", nil, id)
         else
@@ -157,7 +162,7 @@ function frame:COMBAT_LOG_EVENT_UNFILTERED(event,...)
             local spellId, spellName, spellSchool, amount, overkill,
                 school, resisted, blocked, absorbed, critical, glancing, crushing = select(12, unpack(event))
             if avoidable[spellId] then
-                send_message(dstName .. " a pris " .. amount .. " de " .. GetSpellLink(spellId))
+                send_message(dstName .. " a subi " .. amount .. " de " .. GetSpellLink(spellId) .. ".")
             end
         else
             local spellId, spellName, spellSchool = select(12, unpack(event))
